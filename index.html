@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Puntos con Temporizador</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #504748;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #3f3738;
+    }
+    .info {
+      margin: 20px;
+      font-size: 18px;
+    }
+    .watermark {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      opacity: 0.5;
+    }
+    #timer {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+    #mode {
+      font-family: Verdana, sans-serif;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Juego de Puntos</h1>
+  <div id="mode">MODO: NORMAL</div>
+  <div class="info">Puntos: <span id="points">0</span></div>
+  <div class="info">Multiplicador: <span id="multiplier">1</span></div>
+  <div class="info">Diamantes: <span id="diamonds">0</span></div>
+  <button onclick="addPoints()">Add Pts.</button>
+  <button onclick="buyMultiplier()">Buy Multiplier (50 Pts.)</button>
+  <button onclick="winGame()">Win Game (250,000 Pts.)</button>
+  <button onclick="exchangeDiamonds()">Exchange Diamonds (5,000 Pts. each)</button>
+  <button onclick="resetGame()">Reset</button>
+  <button onclick="startTimer()">Start 5-Minute Timer</button>
+  <div id="timer">Tiempo restante: 05:00</div>
+  <div id="message"></div>
+  <div class="watermark">Cokkie.html Ver 0.5</div>
+
+  <script>
+    let points = 0;
+    let diamonds = 0;
+    let multiplier = 1;
+    let timer;
+    let countdown;
+    let originalBackgroundColor = '#121212';
+    let originalButtonColor = '#504748';
+    let originalButtonHoverColor = '#3f3738';
+
+    function addPoints() {
+      points += 1 * multiplier;
+      if (points % 10 === 0) {
+        diamonds++;
+      }
+      updateDisplay();
+    }
+
+    function buyMultiplier() {
+      if (points >= 50) {
+        points -= 50;
+        multiplier++;
+        updateDisplay();
+      }
+    }
+
+    function winGame() {
+      if (points >= 250000) {
+        document.body.style.backgroundColor = 'darkgreen';
+        document.getElementById('message').textContent = "EPICARDOOO!!!1!!";
+        clearTimeout(timer);
+        clearInterval(countdown);
+      } else {
+        document.getElementById('message').textContent = "NO HAY SUFICIENTE!";
+      }
+    }
+
+    function exchangeDiamonds() {
+      if (diamonds > 0) {
+        points += 5000;
+        diamonds--;
+        updateDisplay();
+      }
+    }
+
+    function resetGame() {
+      points = 0;
+      diamonds = 0;
+      multiplier = 1;
+      updateDisplay();
+      clearTimeout(timer);
+      clearInterval(countdown);
+      document.getElementById('message').textContent = "";
+      document.getElementById('mode').textContent = "MODO: NORMAL";
+      document.body.style.backgroundColor = originalBackgroundColor;
+      document.querySelectorAll('button').forEach(button => {
+        button.style.backgroundColor = originalButtonColor;
+        button.addEventListener('mouseover', () => button.style.backgroundColor = originalButtonHoverColor);
+        button.addEventListener('mouseout', () => button.style.backgroundColor = originalButtonColor);
+      });
+      document.getElementById('timer').textContent = "Tiempo restante: 05:00";
+    }
+
+    function startTimer() {
+      clearTimeout(timer);
+      clearInterval(countdown);
+
+      document.getElementById('mode').textContent = "MODO: EXTREMO";
+      document.body.style.backgroundColor = '#211A1B';
+      document.querySelectorAll('button').forEach(button => {
+        button.style.backgroundColor = '#FF2D0C';
+        button.removeEventListener('mouseover', () => button.style.backgroundColor = originalButtonHoverColor);
+        button.removeEventListener('mouseout', () => button.style.backgroundColor = originalButtonColor);
+      });
+
+      let timeLeft = 300;
+      countdown = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = `Tiempo restante: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        timeLeft--;
+
+        if (timeLeft < 0) {
+          clearInterval(countdown);
+          resetGame();
+          alert("Tiempo agotado! El juego se reinicia.");
+        }
+      }, 1000);
+
+      timer = setTimeout(() => {
+        clearInterval(countdown);
+        resetGame();
+        alert("Tiempo agotado! El juego se reinicia.");
+      }, 300000); // 5 minutos
+    }
+
+    function updateDisplay() {
+      document.getElementById('points').textContent = points;
+      document.getElementById('multiplier').textContent = multiplier;
+      document.getElementById('diamonds').textContent = diamonds;
+      document.getElementById('message').textContent = "";
+    }
+  </script>
+</body>
+</html>
